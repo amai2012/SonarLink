@@ -31,6 +31,12 @@ jobs:
     # Run nuget
     - name: Nuget
       run: nuget restore
+    
+    - name: Prepare
+      run: |
+        $version = Get-Content version.txt -Raw
+        .\SetVersion.ps1 $version
+      shell: pwsh     
 
     - name: Build
       run:  |
@@ -39,8 +45,8 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
 # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
-#    - name: Upload build artifacts
-#      uses: actions/upload-artifact@v2
-#      with:
-#        name: MSIX Package
-#        path: ${{ env.Wap_Project_Directory }}\AppPackages
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: VSIX Package
+        path: SonarLink.TE\bin\$env:Configuration\SonarLink.vsix
