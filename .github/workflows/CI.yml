@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest  # For a list of available runner types, refer to
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+
+    env:
+      Solution_Name: SonarLink.sln 
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@2008f912f56e61277eefaac6d1888b750582aa16
+
+    # Run nuget
+    - name: Nuget
+      run: nuget restore
+
+    - name: Build
+      run:  |
+        msbuild /p:Configuration=$env:Configuration $env.Solution_Name
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+# Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
+#    - name: Upload build artifacts
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: MSIX Package
+#        path: ${{ env.Wap_Project_Directory }}\AppPackages
